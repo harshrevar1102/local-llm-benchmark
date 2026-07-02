@@ -1,6 +1,7 @@
 import ollama
 import time
-
+from benchmark.metrics import calculate_metrics
+from benchmark.report import print_report
 
 def benchmark_model(model_name, prompt):
 
@@ -26,6 +27,7 @@ def benchmark_model(model_name, prompt):
     last_chunk = None
 
     for chunk in response:
+
         if first_chunk:
             ttft = time.perf_counter() - start_time
             first_chunk = False
@@ -34,28 +36,16 @@ def benchmark_model(model_name, prompt):
         print(chunk['message']['content'], end='', flush=True)
 
     end_time = time.perf_counter()
-    execution_time = end_time - start_time
 
     output_tokens = last_chunk.eval_count
     generation_time = last_chunk.eval_duration
-    generation_time_seconds = generation_time / 1_000_000_000
 
-    tokens_per_second = output_tokens / generation_time_seconds
+    metrics = calculate_metrics(
+    start_time=start_time,
+    end_time=end_time,
+    ttft=ttft,
+    output_tokens=output_tokens,
+    generation_time_ns=generation_time,
+    )
 
-    print("\n" + "=" * 45)
-    print("        Benchmark Results")
-    print("=" * 45)
-
-    print(f"{'Model':<20}: {model_name}")
-    print(f"{'Execution Time':<20}: {execution_time:.4f} s")
-    print(f"{'TTFT':<20}: {ttft:.4f} s")
-    print(f"{'Output Tokens':<20}: {output_tokens}")
-    print(f"{'Generation Time':<20}: {generation_time_seconds:.4f} s")
-    print(f"{'Tokens Per Second':<20}: {tokens_per_second:.2f}")
-
-    print("=" * 45)
-
-benchmark_model(
-    model_name="phi3:mini",
-    prompt="Tell me two jokes"
-)
+    print_report(model_name, metrics)
