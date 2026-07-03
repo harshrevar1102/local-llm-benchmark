@@ -1,4 +1,9 @@
+from benchmark.result import BenchmarkResult
+
 def calculate_metrics(
+    model_name,
+    prompt,
+    response,
     start_time,
     end_time,
     ttft,
@@ -9,10 +14,14 @@ def calculate_metrics(
     generation_time_seconds = generation_time_ns / 1_000_000_000
     tokens_per_second = output_tokens / generation_time_seconds
 
-    return {
-        "execution_time": execution_time,
-        "ttft": ttft,
-        "output_tokens": output_tokens,
-        "generation_time_seconds": generation_time_seconds,
-        "tokens_per_second": tokens_per_second,
-    }
+    return BenchmarkResult(
+    model_name=model_name,
+    prompt=prompt,
+    response=response,
+
+    execution_time=execution_time,
+    ttft=ttft,
+    output_tokens=output_tokens,
+    generation_time=generation_time_seconds,
+    tokens_per_second=tokens_per_second,
+)
