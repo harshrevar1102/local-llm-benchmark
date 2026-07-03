@@ -3,6 +3,8 @@ from dataclasses import dataclass
 
 @dataclass
 class BenchmarkResult:
+    timestamp: str
+
     model_name: str
     prompt: str
     response: str

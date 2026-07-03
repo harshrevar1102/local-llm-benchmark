@@ -1,13 +1,13 @@
 from benchmark.result import BenchmarkResult
 
 
-def print_report(model_name: str, result: BenchmarkResult):
+def print_report(result: BenchmarkResult):
 
     print("\n" + "=" * 45)
     print("Benchmark Results")
     print("=" * 45)
 
-    print(f"{'Model':<20}: {model_name}")
+    print(f"{'Model':<20}: {result.model_name}")
     print(f"{'Execution Time':<20}: {result.execution_time:.4f} s")
     print(f"{'TTFT':<20}: {result.ttft:.4f} s")
     print(f"{'Output Tokens':<20}: {result.output_tokens}")
