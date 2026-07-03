@@ -5,8 +5,6 @@ from benchmark.metrics import calculate_metrics
 
 def benchmark_model(model_name, prompt):
 
-    _warmup_model(model_name, prompt)
-
     start_time = time.perf_counter()
 
     response = ollama.chat(
@@ -56,9 +54,7 @@ def benchmark_model(model_name, prompt):
 
     return result
 
-def _warmup_model(model_name: str, prompt: str):
-
-    print("Warming up model...")
+def warmup_model(model_name: str, prompt: str):
 
     response = ollama.chat(
         model=model_name,
@@ -74,4 +70,19 @@ def _warmup_model(model_name: str, prompt: str):
     for _ in response:
         pass
 
-    print("Warm-up completed.\n")
+def run_benchmark(model_name: str, prompt: str, runs: int = 5):
+
+    print("Warming up model...")
+
+    warmup_model(model_name, prompt)
+
+    print("Warm-up complete.\n")
+
+    results = []
+    for run in range(1, runs + 1):
+        print(f"\nRun {run}/{runs}")
+        result = benchmark_model(model_name, prompt)
+        results.append(result)
+        print("\n" + "-" * 50)
+
+    return results
