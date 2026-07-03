@@ -7,7 +7,6 @@ class BenchmarkResult:
 
     model_name: str
     prompt: str
-    response: str
 
     execution_time: float
     ttft: float

@@ -5,6 +5,8 @@ from benchmark.metrics import calculate_metrics
 
 def benchmark_model(model_name, prompt):
 
+    _warmup_model(model_name, prompt)
+
     start_time = time.perf_counter()
 
     response = ollama.chat(
@@ -25,7 +27,6 @@ def benchmark_model(model_name, prompt):
 
     first_chunk = True
     last_chunk = None
-    generated_response = ""
 
     for chunk in response:
 
@@ -35,9 +36,8 @@ def benchmark_model(model_name, prompt):
     
         last_chunk = chunk
 
-        text = chunk["message"]["content"]
-        generated_response += text
-        print(text, end="", flush=True)
+        
+        print(chunk["message"]["content"], end="", flush=True)
 
     end_time = time.perf_counter()
 
@@ -47,7 +47,6 @@ def benchmark_model(model_name, prompt):
     result = calculate_metrics(
         model_name=model_name,
         prompt=prompt,
-        response=generated_response,
         start_time=start_time,
         end_time=end_time,
         ttft=ttft,
@@ -56,3 +55,23 @@ def benchmark_model(model_name, prompt):
     )
 
     return result
+
+def _warmup_model(model_name: str, prompt: str):
+
+    print("Warming up model...")
+
+    response = ollama.chat(
+        model=model_name,
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        stream=True,
+    )
+
+    for _ in response:
+        pass
+
+    print("Warm-up completed.\n")

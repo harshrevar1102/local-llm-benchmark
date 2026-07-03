@@ -4,7 +4,6 @@ from benchmark.result import BenchmarkResult
 def calculate_metrics(
     model_name,
     prompt,
-    response,
     start_time,
     end_time,
     ttft,
@@ -20,7 +19,6 @@ def calculate_metrics(
         timestamp=timestamp,
         model_name=model_name,
         prompt=prompt,
-        response=response,
 
         execution_time=execution_time,
         ttft=ttft,
