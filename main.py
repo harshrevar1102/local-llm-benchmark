@@ -4,7 +4,7 @@ from benchmark.exporter import save_csv
 
 model = "phi3:mini"
 
-prompt = "Explain recursion in exactly 100 words."
+prompt = "Tell me a joke."
 
 result = benchmark_model(model_name=model, prompt=prompt)
 print_report(result=result)
