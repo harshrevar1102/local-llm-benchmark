@@ -3,7 +3,11 @@ import time
 
 from benchmark.metrics import calculate_metrics
 
-def benchmark_model(model_name, prompt):
+def benchmark_model(
+        model_name, 
+        prompt, 
+        show_output: bool = True
+):
 
     start_time = time.perf_counter()
 
@@ -25,6 +29,7 @@ def benchmark_model(model_name, prompt):
 
     first_chunk = True
     last_chunk = None
+    generated_response = ""
 
     for chunk in response:
 
@@ -35,7 +40,11 @@ def benchmark_model(model_name, prompt):
         last_chunk = chunk
 
         
-        print(chunk["message"]["content"], end="", flush=True)
+        text = chunk["message"]["content"]
+        generated_response += text
+
+        if show_output:
+            print(text, end="", flush=True)
 
     end_time = time.perf_counter()
 
@@ -80,9 +89,20 @@ def run_benchmark(model_name: str, prompt: str, runs: int = 5):
 
     results = []
     for run in range(1, runs + 1):
+
         print(f"\nRun {run}/{runs}")
-        result = benchmark_model(model_name, prompt)
+
+        result = benchmark_model(
+            model_name=model_name,
+            prompt=prompt,
+            show_output=(run == 1),
+        )
+
         results.append(result)
-        print("\n" + "-" * 50)
+
+        if run != 1:
+            print("✓")
+
+        print("-" * 50)
 
     return results
