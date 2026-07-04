@@ -1,26 +1,42 @@
-from benchmark.result import BenchmarkResult, BenchmarkSummary
+from benchmark.result import (
+    BenchmarkResult,
+    BenchmarkSummary,
+    MetricStats,
+)
 
+import statistics
+
+def calculate_stats(values):
+
+    return MetricStats(
+        average=statistics.mean(values),
+        median=statistics.median(values),
+        minimum=min(values),
+        maximum=max(values),
+        std_dev=statistics.stdev(values) if len(values) > 1 else 0,
+    )
 
 def aggregate_results(results: list[BenchmarkResult]):
 
     runs = len(results)
 
+    execution_times = [r.execution_time for r in results]
+
+    ttfts = [r.ttft for r in results]
+
+    output_tokens = [r.output_tokens for r in results]
+
+    generation_times = [r.generation_time for r in results]
+
+    tokens_per_second = [r.tokens_per_second for r in results]
+
     return BenchmarkSummary(
         model_name=results[0].model_name,
-        runs=runs,
+        runs=len(results),
 
-        avg_execution_time=sum(r.execution_time for r in results) / runs,
-        avg_ttft=sum(r.ttft for r in results) / runs,
-        avg_output_tokens=sum(r.output_tokens for r in results) / runs,
-        avg_generation_time=sum(r.generation_time for r in results) / runs,
-        avg_tokens_per_second=sum(r.tokens_per_second for r in results) / runs,
-
-        best_execution_time=min(r.execution_time for r in results),
-        worst_execution_time=max(r.execution_time for r in results),
-
-        best_ttft=min(r.ttft for r in results),
-        worst_ttft=max(r.ttft for r in results),
-
-        best_tokens_per_second=max(r.tokens_per_second for r in results),
-        worst_tokens_per_second=min(r.tokens_per_second for r in results),
+        execution_time=calculate_stats(execution_times),
+        ttft=calculate_stats(ttfts),
+        output_tokens=calculate_stats(output_tokens),
+        generation_time=calculate_stats(generation_times),
+        tokens_per_second=calculate_stats(tokens_per_second),
     )

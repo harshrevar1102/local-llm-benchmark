@@ -1,5 +1,15 @@
 from benchmark.result import BenchmarkSummary
 
+def print_metric(name: str, stats):
+
+    print(f"\n{name}")
+    print("-" * 50)
+
+    print(f"{'Average':<20}: {stats.average:.4f}")
+    print(f"{'Median':<20}: {stats.median:.4f}")
+    print(f"{'Minimum':<20}: {stats.minimum:.4f}")
+    print(f"{'Maximum':<20}: {stats.maximum:.4f}")
+    print(f"{'Std Dev':<20}: {stats.std_dev:.4f}")
 
 def print_report(summary: BenchmarkSummary):
 
@@ -9,24 +19,16 @@ def print_report(summary: BenchmarkSummary):
 
     print(f"{'Model':<30}: {summary.model_name}")
     print(f"{'Runs':<30}: {summary.runs}")
-
     print()
 
-    print(f"{'Average Execution Time':<30}: {summary.avg_execution_time:.4f} s")
-    print(f"{'Average TTFT':<30}: {summary.avg_ttft:.4f} s")
-    print(f"{'Average Output Tokens':<30}: {summary.avg_output_tokens:.2f}")
-    print(f"{'Average Generation Time':<30}: {summary.avg_generation_time:.4f} s")
-    print(f"{'Average Tokens / Second':<30}: {summary.avg_tokens_per_second:.2f}")
+    print_metric("Execution Time (s)", summary.execution_time)
 
-    print()
+    print_metric("TTFT (s)", summary.ttft)
 
-    print(f"{'Best Execution Time':<30}: {summary.best_execution_time:.4f} s")
-    print(f"{'Worst Execution Time':<30}: {summary.worst_execution_time:.4f} s")
+    print_metric("Output Tokens", summary.output_tokens)
 
-    print(f"{'Best TTFT':<30}: {summary.best_ttft:.4f} s")
-    print(f"{'Worst TTFT':<30}: {summary.worst_ttft:.4f} s")
+    print_metric("Generation Time (s)", summary.generation_time)
 
-    print(f"{'Best TPS':<30}: {summary.best_tokens_per_second:.2f}")
-    print(f"{'Worst TPS':<30}: {summary.worst_tokens_per_second:.2f}")
+    print_metric("Tokens / Second", summary.tokens_per_second)
 
     print("=" * 50)

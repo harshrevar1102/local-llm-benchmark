@@ -4,9 +4,9 @@ from benchmark.exporter import save_csv
 from benchmark.aggregator import aggregate_results
 
 
-model = "phi3:mini"
+model = "llama3.2:latest"
 
-prompt = "Tell me a joke."
+prompt = "Write exactly 50 words about Python."
 
 results = run_benchmark(
     model_name=model, 
