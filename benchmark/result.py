@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-
 @dataclass
 class BenchmarkResult:
     timestamp: str
@@ -21,6 +20,7 @@ class MetricStats:
     minimum: float
     maximum: float
     std_dev: float
+
 
 @dataclass
 class BenchmarkSummary:
