@@ -14,6 +14,7 @@ from benchmark.prompts import PROMPTS
 from benchmark.aggregator import aggregate_results
 from benchmark.report import print_report
 from benchmark.exporter import save_csv
+from benchmark.prompt_builder import build_json_prompt
 
 
 def benchmark_model(
@@ -28,12 +29,14 @@ def benchmark_model(
 
     start_time = time.perf_counter()
 
+    json_prompt = build_json_prompt(prompt)
+
     response = ollama.chat(
         model=model_name,
         messages=[
             {
                 "role": "user",
-                "content": prompt
+                "content": json_prompt,
             }
         ],
         options={
@@ -93,12 +96,14 @@ def warmup_model(
         temperature: float,
 ):
 
+    json_prompt = build_json_prompt(prompt)
+    
     response = ollama.chat(
         model=model_name,
         messages=[
             {
                 "role": "user",
-                "content": prompt,
+                "content": json_prompt,
             }
         ],
         options={
