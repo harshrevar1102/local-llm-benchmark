@@ -42,3 +42,8 @@ class BenchmarkSummary:
     output_tokens: MetricStats
     generation_time: MetricStats
     tokens_per_second: MetricStats
+    json_validity_rate: float
+    retry_rate: float
+    successful_runs: int
+    failed_runs: int
+    total_retries: int

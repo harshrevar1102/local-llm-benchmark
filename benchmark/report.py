@@ -1,5 +1,6 @@
 from benchmark.result import BenchmarkSummary
 
+
 def print_metric(name: str, stats):
 
     print(f"\n{name}")
@@ -10,6 +11,7 @@ def print_metric(name: str, stats):
     print(f"{'Minimum':<20}: {stats.minimum:.4f}")
     print(f"{'Maximum':<20}: {stats.maximum:.4f}")
     print(f"{'Std Dev':<20}: {stats.std_dev:.4f}")
+
 
 def print_report(summary: BenchmarkSummary):
 
@@ -30,5 +32,14 @@ def print_report(summary: BenchmarkSummary):
     print_metric("Generation Time (s)", summary.generation_time)
 
     print_metric("Tokens / Second", summary.tokens_per_second)
+
+    print("\nReliability")
+    print("-" * 50)
+
+    print(f"{'JSON Validity':<20}: {summary.json_validity_rate:.2f}%")
+    print(f"{'Retry Rate':<20}: {summary.retry_rate:.2f}%")
+    print(f"{'Successful Runs':<20}: {summary.successful_runs}")
+    print(f"{'Failed Runs':<20}: {summary.failed_runs}")
+    print(f"{'Total Retries':<20}: {summary.total_retries}")
 
     print("=" * 50)
