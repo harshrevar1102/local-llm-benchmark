@@ -1,17 +1,24 @@
 from dataclasses import dataclass
-
 @dataclass
 class BenchmarkResult:
+    session_id: str
     timestamp: str
 
     model_name: str
+    prompt_category: str
     prompt: str
+
+    temperature: float
+    run_number: int
 
     execution_time: float
     ttft: float
+
     output_tokens: int
     generation_time: float
     tokens_per_second: float
+
+    generated_output: str
 
 @dataclass
 class MetricStats:

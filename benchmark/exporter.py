@@ -1,5 +1,5 @@
-from dataclasses import asdict
 import csv
+from dataclasses import asdict
 from pathlib import Path
 
 from benchmark.result import BenchmarkResult
@@ -10,16 +10,53 @@ def save_csv(result: BenchmarkResult):
     results_dir = Path("results")
     results_dir.mkdir(exist_ok=True)
 
-    csv_file = results_dir / "benchmark_results.csv"
+    metrics_file = results_dir / "benchmark_results.csv"
+    outputs_file = results_dir / "benchmark_outputs.csv"
 
-    with open(csv_file, "a", newline="", encoding="utf-8") as file:
+    result_dict = asdict(result)
+
+    # ----------------------------------------------------
+    # Metrics CSV (Numeric Data)
+    # ----------------------------------------------------
+
+    metrics_data = result_dict.copy()
+    metrics_data.pop("generated_output")
+
+    with open(metrics_file, "a", newline="", encoding="utf-8") as file:
 
         writer = csv.DictWriter(
             file,
-            fieldnames=BenchmarkResult.__dataclass_fields__.keys(),
+            fieldnames=metrics_data.keys(),
         )
 
         if file.tell() == 0:
             writer.writeheader()
 
-        writer.writerow(asdict(result))
+        writer.writerow(metrics_data)
+
+    # ----------------------------------------------------
+    # Outputs CSV (Model Responses)
+    # ----------------------------------------------------
+
+    output_data = {
+        "session_id": result.session_id,
+        "timestamp": result.timestamp,
+        "model_name": result.model_name,
+        "prompt_category": result.prompt_category,
+        "temperature": result.temperature,
+        "run_number": result.run_number,
+        "prompt": result.prompt,
+        "generated_output": result.generated_output,
+    }
+
+    with open(outputs_file, "a", newline="", encoding="utf-8") as file:
+
+        writer = csv.DictWriter(
+            file,
+            fieldnames=output_data.keys(),
+        )
+
+        if file.tell() == 0:
+            writer.writeheader()
+
+        writer.writerow(output_data)

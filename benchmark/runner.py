@@ -1,8 +1,15 @@
 import ollama
 import time
 
+from datetime import datetime
+
 from benchmark.metrics import calculate_metrics
-from benchmark.config import MODELS, NUM_RUNS, TEMPERATURES
+from benchmark.config import (
+    MODELS,
+    NUM_RUNS,
+    TEMPERATURES,
+    SHOW_MODEL_OUTPUT,
+)
 from benchmark.prompts import PROMPTS
 from benchmark.aggregator import aggregate_results
 from benchmark.report import print_report
@@ -10,10 +17,13 @@ from benchmark.exporter import save_csv
 
 
 def benchmark_model(
+        session_id: str,
         model_name: str,
+        prompt_category: str,
         prompt: str,
         temperature: float,
-        show_output: bool = True
+        run_number: int,
+        show_output: bool = SHOW_MODEL_OUTPUT,
 ):
 
     start_time = time.perf_counter()
@@ -31,7 +41,6 @@ def benchmark_model(
         },
         stream=True,
     )
-
 
     # print(response['message']['content'])
 
@@ -61,8 +70,13 @@ def benchmark_model(
     generation_time_ns = last_chunk.eval_duration
 
     result = calculate_metrics(
+        session_id=session_id,
         model_name=model_name,
+        prompt_category=prompt_category,
         prompt=prompt,
+        temperature=temperature,
+        run_number=run_number,
+        generated_output=generated_response,
         start_time=start_time,
         end_time=end_time,
         ttft=ttft,
@@ -76,7 +90,7 @@ def benchmark_model(
 def warmup_model(
         model_name: str,
         prompt: str,
-        temperature: float
+        temperature: float,
 ):
 
     response = ollama.chat(
@@ -98,7 +112,9 @@ def warmup_model(
 
 
 def run_benchmark(
+    session_id: str,
     model_name: str,
+    prompt_category: str,
     prompt: str,
     temperature: float,
     runs: int = NUM_RUNS,
@@ -118,26 +134,38 @@ def run_benchmark(
 
     for run in range(1, runs + 1):
 
-        print(f"\nRun {run}/{runs}")
+        print(f"Run {run}/{runs}...", end=" ")
 
         result = benchmark_model(
+            session_id=session_id,
             model_name=model_name,
+            prompt_category=prompt_category,
             prompt=prompt,
             temperature=temperature,
-            show_output=(run == 1),
+            run_number=run,
+            show_output=SHOW_MODEL_OUTPUT,
         )
 
         results.append(result)
 
-        if run != 1:
-            print("✓")
+        print("✓")
 
-        print("-" * 50)
+    print("-" * 50)
 
     return results
 
 
 def run_benchmark_suite():
+
+    session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    total_configs = (
+        len(MODELS)
+        * len(PROMPTS)
+        * len(TEMPERATURES)
+    )
+
+    config_number = 1
 
     for model in MODELS:
 
@@ -149,13 +177,19 @@ def run_benchmark_suite():
             for temperature in TEMPERATURES:
 
                 print("\n" + "=" * 70)
+                print(
+                    f"Configuration {config_number}/{total_configs}"
+                )
+                print(f"Session ID  : {session_id}")
                 print(f"Model       : {model}")
                 print(f"Category    : {category}")
                 print(f"Temperature : {temperature}")
                 print("=" * 70)
 
                 results = run_benchmark(
+                    session_id=session_id,
                     model_name=model,
+                    prompt_category=category,
                     prompt=prompt_text,
                     temperature=temperature,
                     runs=NUM_RUNS,
@@ -167,3 +201,9 @@ def run_benchmark_suite():
 
                 for result in results:
                     save_csv(result)
+
+                config_number += 1
+
+    print("\n" + "=" * 80)
+    print("Benchmark Suite Completed Successfully.")
+    print("=" * 80)

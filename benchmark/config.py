@@ -1,5 +1,8 @@
 # Number of benchmark runs for each configuration
 NUM_RUNS = 5
+SHOW_MODEL_OUTPUT = False
+SAVE_MODEL_OUTPUT = True
+WARMUP = True
 
 # Temperature values to benchmark
 TEMPERATURES = [

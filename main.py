@@ -7,10 +7,6 @@ def main():
 
     run_benchmark_suite()
 
-    print("\n" + "=" * 80)
-    print("Benchmark Suite Completed Successfully.")
-    print("=" * 80)
-
 
 if __name__ == "__main__":
     main()
