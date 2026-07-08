@@ -15,16 +15,14 @@ from benchmark.aggregator import aggregate_results
 from benchmark.report import print_report
 from benchmark.exporter import save_csv
 from benchmark.prompt_builder import build_json_prompt
+from benchmark.validator import validate_output
 
 
-def benchmark_model(
-        session_id: str,
+def generate_response(
         model_name: str,
-        prompt_category: str,
         prompt: str,
         temperature: float,
-        run_number: int,
-        show_output: bool = SHOW_MODEL_OUTPUT,
+        show_output: bool,
 ):
 
     start_time = time.perf_counter()
@@ -69,6 +67,58 @@ def benchmark_model(
 
     end_time = time.perf_counter()
 
+    return (
+        generated_response,
+        ttft,
+        last_chunk,
+        start_time,
+        end_time,
+    )
+
+
+def benchmark_model(
+        session_id: str,
+        model_name: str,
+        prompt_category: str,
+        prompt: str,
+        temperature: float,
+        run_number: int,
+        show_output: bool = SHOW_MODEL_OUTPUT,
+):
+
+    generated_response, ttft, last_chunk, start_time, end_time = generate_response(
+        model_name=model_name,
+        prompt=prompt,
+        temperature=temperature,
+        show_output=show_output,
+    )
+
+    valid, parsed, error = validate_output(generated_response)
+
+    retry_count = 0
+
+    if not valid:
+
+        print("\nInvalid JSON detected.")
+        print("Retrying once...")
+
+        retry_count = 1
+
+        generated_response, ttft, last_chunk, start_time, end_time = generate_response(
+            model_name=model_name,
+            prompt=prompt,
+            temperature=temperature,
+            show_output=show_output,
+        )
+
+        valid, parsed, error = validate_output(generated_response)
+
+    print(f"\nJSON Valid : {valid}")
+
+    if not valid:
+        print(f"Validation Error : {error}")
+        print("Retry failed. Continuing benchmark.")
+
     output_tokens = last_chunk.eval_count
     generation_time_ns = last_chunk.eval_duration
 
@@ -89,7 +139,6 @@ def benchmark_model(
 
     return result
 
-
 def warmup_model(
         model_name: str,
         prompt: str,
@@ -97,7 +146,7 @@ def warmup_model(
 ):
 
     json_prompt = build_json_prompt(prompt)
-    
+
     response = ollama.chat(
         model=model_name,
         messages=[

@@ -9,6 +9,14 @@ def validate_output(text: str):
 
     try:
 
+        text = text.strip()
+
+        text = text.removeprefix("```json")
+        text = text.removeprefix("```")
+        text = text.removesuffix("```")
+
+        text = text.strip()
+
         data = json.loads(text)
 
         parsed = Explanation.model_validate(data)
