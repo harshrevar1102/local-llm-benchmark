@@ -19,6 +19,9 @@ class BenchmarkResult:
     tokens_per_second: float
 
     generated_output: str
+    json_valid: bool
+    retry_count: int
+    validation_error: str | None
 
 @dataclass
 class MetricStats:

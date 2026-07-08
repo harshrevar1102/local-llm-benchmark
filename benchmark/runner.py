@@ -90,7 +90,7 @@ def benchmark_model(
         model_name=model_name,
         prompt=prompt,
         temperature=temperature,
-        show_output=show_output,
+        show_output=False,
     )
 
     valid, parsed, error = validate_output(generated_response)
@@ -117,7 +117,10 @@ def benchmark_model(
 
     if not valid:
         print(f"Validation Error : {error}")
-        print("Retry failed. Continuing benchmark.")
+        if valid:
+            print("Retry successful.")
+        else:
+            print("Retry failed. Continuing benchmark.")
 
     output_tokens = last_chunk.eval_count
     generation_time_ns = last_chunk.eval_duration
@@ -135,6 +138,9 @@ def benchmark_model(
         ttft=ttft,
         output_tokens=output_tokens,
         generation_time_ns=generation_time_ns,
+        json_valid=valid,
+        retry_count=retry_count,
+        validation_error=error if not valid else None,
     )
 
     return result
